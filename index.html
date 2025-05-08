@@ -11,7 +11,7 @@
       background-color: #252525;
       font-family: 'Tajawal', sans-serif;
       color: #f0f0f0;
-      text-align: center;
+      text-align: right;
     }
 
     .container {
@@ -22,6 +22,7 @@
     h1 {
       font-size: 28px;
       margin-bottom: 30px;
+      text-align: center;
     }
 
     h2 {
@@ -30,8 +31,8 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      text-align: right;
       gap: 8px;
+      direction: rtl;
     }
 
     .grid {
@@ -48,18 +49,29 @@
       padding: 20px;
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.04);
       transition: transform 0.2s;
-      text-align: center;
+      text-align: right;
     }
 
     .card:hover {
       transform: scale(1.03);
     }
 
-    .card-title {
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .coin-image {
+      width: 24px;
+      height: 24px;
+    }
+
+    .card-symbol {
       font-size: 18px;
-      font-weight: 700;
+      font-weight: bold;
       color: #ffffff;
-      margin-bottom: 10px;
     }
 
     .card-value {
@@ -68,16 +80,11 @@
       margin: 4px 0;
     }
 
-    .coin-image {
-      width: 36px;
-      height: 36px;
-      margin-bottom: 10px;
-    }
-
     .source-link {
       margin-top: 60px;
       font-size: 14px;
       color: #999;
+      text-align: center;
     }
 
     .source-link a {
@@ -107,14 +114,19 @@
         const data = await response.json();
         const content = document.getElementById('content');
 
-        // تصفية العملات مقابل USDT فقط
-        const usdtOnly = data.filter(c => c.symbol.toLowerCase().includes('usdt') && c.market_cap && c.circulating_supply);
+        // استبعاد العملات المستقرة
+        const stablecoins = ['usdt', 'usdc', 'busd', 'dai', 'tusd', 'usdp', 'gusd'];
+        const filtered = data.filter(coin =>
+          !stablecoins.includes(coin.symbol.toLowerCase()) &&
+          coin.market_cap &&
+          coin.circulating_supply
+        );
 
         const sections = [
-          { icon: '💰', title: 'أعلى 5 عملات من حيث القيمة السوقية', data: [...usdtOnly].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5) },
-          { icon: '📉', title: 'أدنى 5 عملات من حيث القيمة السوقية', data: [...usdtOnly].sort((a, b) => a.market_cap - b.market_cap).slice(0, 5) },
-          { icon: '📦', title: 'أعلى 5 عملات من حيث العدد المعروض', data: [...usdtOnly].sort((a, b) => b.circulating_supply - a.circulating_supply).slice(0, 5) },
-          { icon: '🧮', title: 'أدنى 5 عملات من حيث العدد المعروض', data: [...usdtOnly].sort((a, b) => a.circulating_supply - b.circulating_supply).slice(0, 5) },
+          { icon: '💰', title: 'أعلى 5 عملات من حيث القيمة السوقية', data: [...filtered].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5) },
+          { icon: '📉', title: 'أدنى 5 عملات من حيث القيمة السوقية', data: [...filtered].sort((a, b) => a.market_cap - b.market_cap).slice(0, 5) },
+          { icon: '📦', title: 'أعلى 5 عملات من حيث العدد المعروض', data: [...filtered].sort((a, b) => b.circulating_supply - a.circulating_supply).slice(0, 5) },
+          { icon: '🧮', title: 'أدنى 5 عملات من حيث العدد المعروض', data: [...filtered].sort((a, b) => a.circulating_supply - b.circulating_supply).slice(0, 5) },
         ];
 
         for (let section of sections) {
@@ -130,14 +142,21 @@
             const card = document.createElement('div');
             card.className = 'card';
 
+            const header = document.createElement('div');
+            header.className = 'card-header';
+
             const img = document.createElement('img');
             img.src = coin.image;
             img.className = 'coin-image';
-            img.alt = coin.name;
+            img.alt = coin.symbol.toUpperCase();
 
-            const name = document.createElement('div');
-            name.className = 'card-title';
-            name.textContent = coin.name + ' (' + coin.symbol.toUpperCase() + ')';
+            const symbol = document.createElement('div');
+            symbol.className = 'card-symbol';
+            symbol.textContent = coin.symbol.toUpperCase();
+
+            header.appendChild(img);
+            header.appendChild(symbol);
+            card.appendChild(header);
 
             const marketCap = document.createElement('div');
             marketCap.className = 'card-value';
@@ -147,8 +166,6 @@
             supply.className = 'card-value';
             supply.textContent = 'العدد المعروض: ' + coin.circulating_supply.toLocaleString();
 
-            card.appendChild(img);
-            card.appendChild(name);
             card.appendChild(marketCap);
             card.appendChild(supply);
             grid.appendChild(card);

@@ -262,22 +262,24 @@
     };
 
     async function fetchFullData() {
-      try {
-        // جلب بيانات السوق الأساسية
-        const proxyUrl = 'https://script.google.com/macros/s/AKfycbyMKT6n1jhg9fzSQDcCt9sEqABuTnZeuNktYEYnne9eBxXkb9k0r-qkGjo-NtW3U1or/exec';
-const targetUrl = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd';
-const marketResponse = await fetch(`${proxyUrl}?url=${encodeURIComponent(targetUrl)}`);
-
-        const marketData = await marketResponse.json();
+  try {
+    // استبدل هذا الرابط برابط خادمك على Render
+    const marketResponse = await fetch('https://render-sfo2.onrender.com/api/market');
+    const marketData = await marketResponse.json();
         
         // جلب بيانات المجتمع لكل عملة
         const coinsDetails = await Promise.all(
-          marketData.slice(0, 30).map(coin => 
-            fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}?localization=false&tickers=false&community_data=true&developer_data=true`)
-              .then(res => res.json())
-          )
-        );
-        
+      marketData.slice(0, 30).map(coin => 
+        fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}?localization=false&tickers=false&community_data=true&developer_data=true`)
+          .then(res => res.json())
+      )
+    );
+       return { marketData, coinsDetails };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return null;
+  }
+}  
         // دمج البيانات
         const enrichedData = marketData.map(coin => {
           const detail = coinsDetails.find(d => d.id === coin.id) || {};

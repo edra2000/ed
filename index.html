@@ -11,7 +11,6 @@
       background-color: #252525;
       font-family: 'Tajawal', sans-serif;
       color: #f0f0f0;
-      text-align: right;
     }
 
     .container {
@@ -30,17 +29,16 @@
       margin: 40px 0 10px;
       display: flex;
       align-items: center;
-      justify-content: flex-end;
       gap: 10px;
-      direction: rtl;
       color: #ffffff;
+      justify-content: right; /* تغيير إلى right */
+      padding-right: 20px; /* إضافة padding للمحاذاة */
     }
 
     .grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 24px;
-      justify-items: center;
     }
 
     .card {
@@ -53,6 +51,7 @@
       transition: transform 0.3s ease;
       text-align: right;
       direction: rtl;
+      margin: 0 auto; /* مركزة البطاقات مع محافظة على محتوى يميني */
     }
 
     .card:hover {
@@ -63,27 +62,29 @@
     .card-header {
       display: flex;
       align-items: center;
-      justify-content: flex-end; /* تغيير إلى flex-end للتحريك لليمين */
       gap: 10px;
       margin-bottom: 12px;
+      justify-content: flex-end; /* تأكيد المحاذاة لليمين */
     }
 
     .coin-image {
       width: 28px;
       height: 28px;
+      order: 1; /* الصورة تظهر على اليمين */
     }
 
     .card-symbol {
       font-size: 18px;
       font-weight: bold;
       color: #ffffff;
+      order: 2; /* الرمز يظهر على اليسار */
     }
 
     .card-value {
       font-size: 14px;
       color: #a8e6ff;
       margin: 4px 0;
-      text-align: right; /* محاذاة النص لليمين */
+      text-align: right;
     }
 
     .source-link {
@@ -120,7 +121,6 @@
         const data = await response.json();
         const content = document.getElementById('content');
 
-        // استبعاد العملات المستقرة (تم تحديث القائمة)
         const stablecoins = ['usdt', 'usdc', 'busd', 'dai', 'tusd', 'usdp', 'gusd', 'ust', 'frax', 'usdd'];
         const filtered = data.filter(coin =>
           !stablecoins.includes(coin.symbol.toLowerCase()) &&
@@ -158,9 +158,9 @@
 
             const symbol = document.createElement('div');
             symbol.className = 'card-symbol';
-            symbol.textContent = coin.symbol.toUpperCase(); // عرض الرمز فقط
+            symbol.textContent = coin.symbol.toUpperCase();
 
-            header.appendChild(symbol); // نقل الرمز قبل الصورة
+            header.appendChild(symbol);
             header.appendChild(img);
             card.appendChild(header);
 

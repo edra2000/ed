@@ -7,60 +7,97 @@
   <style>
     body {
       margin: 0;
-      padding: 20px;
-      background-color: #1a1a1a;
+      padding: 40px 20px;
+      background-color: #252525;
       font-family: 'Tajawal', sans-serif;
-      color: #ffffff;
+      color: #f0f0f0;
     }
+
     .container {
-      max-width: 1200px;
-      margin: 0 auto;
+      max-width: 1400px;
+      margin: auto;
     }
+
     h1 {
-      text-align: center;
-      color: #4fa8ff;
+      font-size: 28px;
       margin-bottom: 30px;
+      text-align: center;
     }
-    .section {
-      margin-bottom: 40px;
-    }
-    .section-title {
+
+    h2 {
+      font-size: 16px;
+      margin: 40px 0 10px;
       display: flex;
       align-items: center;
       gap: 10px;
-      color: #4fa8ff;
-      border-bottom: 1px solid #333;
-      padding-bottom: 10px;
+      color: #ffffff;
+      justify-content: right; /* التأكيد على المحاذاة لليمين */
+      padding-right: 20px;
     }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 24px;
     }
+
     .card {
-      background: #2a2a2a;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      background-color: #2e2e2e;
+      border-radius: 18px;
+      padding: 18px;
+      width: 220px;
+      height: auto;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease;
+      direction: rtl; /* التأكيد على الاتجاه من اليمين لليسار */
     }
+
+    .card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+    }
+
     .card-header {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 12px;
+      justify-content: flex-end; /* المحاذاة لليمين */
     }
-    .coin-name {
-      font-weight: bold;
+
+    .coin-image {
+      width: 28px;
+      height: 28px;
+      margin-left: 0; /* إزالة أي هامش غير مرغوب فيه */
+    }
+
+    .card-symbol {
       font-size: 18px;
+      font-weight: bold;
+      color: #ffffff;
     }
-    .coin-value {
+
+    .card-value {
+      font-size: 14px;
       color: #a8e6ff;
-      margin: 5px 0;
+      margin: 4px 0;
+      text-align: right; /* المحاذاة لليمين */
     }
-    .error {
-      color: #ff6b6b;
+
+    .source-link {
+      margin-top: 60px;
+      font-size: 14px;
+      color: #999;
       text-align: center;
+    }
+
+    .source-link a {
+      color: #66ccff;
+      text-decoration: none;
+    }
+
+    .source-link a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
@@ -68,76 +105,87 @@
   <div class="container">
     <h1>تحليل العملات الرقمية</h1>
     <div id="content"></div>
+
+    <div class="source-link">
+      البيانات من: <a href="https://www.coingecko.com/" target="_blank" rel="noopener">CoinGecko</a>
+    </div>
   </div>
 
   <script>
     async function fetchData() {
       try {
-        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1');
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false');
         const data = await response.json();
-        renderData(data);
+        const content = document.getElementById('content');
+
+        // استبعاد العملات المستقرة
+        const stablecoins = ['usdt', 'usdc', 'busd', 'dai', 'tusd', 'usdp', 'gusd'];
+        const filtered = data.filter(coin =>
+          !stablecoins.includes(coin.symbol.toLowerCase()) &&
+          coin.market_cap &&
+          coin.circulating_supply
+        );
+
+        const sections = [
+          { icon: '💰', title: 'أعلى 5 عملات من حيث القيمة السوقية', data: [...filtered].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5) },
+          { icon: '📉', title: 'أدنى 5 عملات من حيث القيمة السوقية', data: [...filtered].sort((a, b) => a.market_cap - b.market_cap).slice(0, 5) },
+          { icon: '📦', title: 'أعلى 5 عملات من حيث العدد المعروض', data: [...filtered].sort((a, b) => b.circulating_supply - a.circulating_supply).slice(0, 5) },
+          { icon: '🧮', title: 'أدنى 5 عملات من حيث العدد المعروض', data: [...filtered].sort((a, b) => a.circulating_supply - b.circulating_supply).slice(0, 5) },
+        ];
+
+        for (let section of sections) {
+          const sec = document.createElement('div');
+          const h2 = document.createElement('h2');
+          h2.innerHTML = `${section.icon} ${section.title}`;
+          sec.appendChild(h2);
+
+          const grid = document.createElement('div');
+          grid.className = 'grid';
+
+          section.data.forEach(coin => {
+            const card = document.createElement('div');
+            card.className = 'card';
+
+            const header = document.createElement('div');
+            header.className = 'card-header';
+
+            const symbol = document.createElement('div');
+            symbol.className = 'card-symbol';
+            symbol.textContent = coin.symbol.toUpperCase();
+
+            const img = document.createElement('img');
+            img.src = coin.image;
+            img.className = 'coin-image';
+            img.alt = coin.symbol.toUpperCase();
+
+            header.appendChild(symbol);
+            header.appendChild(img);
+            card.appendChild(header);
+
+            const marketCap = document.createElement('div');
+            marketCap.className = 'card-value';
+            marketCap.textContent = 'القيمة السوقية: $' + coin.market_cap.toLocaleString();
+
+            const supply = document.createElement('div');
+            supply.className = 'card-value';
+            supply.textContent = 'العدد المعروض: ' + coin.circulating_supply.toLocaleString();
+
+            card.appendChild(marketCap);
+            card.appendChild(supply);
+            grid.appendChild(card);
+          });
+
+          sec.appendChild(grid);
+          content.appendChild(sec);
+        }
       } catch (error) {
-        document.getElementById('content').innerHTML = `
-          <div class="error">
-            <p>⚠️ حدث خطأ في جلب البيانات. يرجى المحاولة لاحقًا.</p>
-            <p>${error.message}</p>
-          </div>
-        `;
+        console.error('خطأ في جلب البيانات:', error);
+        const content = document.getElementById('content');
+        content.innerHTML = '<p style="text-align:center;color:red;">حدث خطأ في جلب البيانات. يرجى المحاولة لاحقًا.</p>';
       }
     }
 
-    function renderData(data) {
-      const content = document.getElementById('content');
-      
-      // تصفية العملات المستقرة
-      const stablecoins = ['usdt', 'usdc', 'busd', 'dai', 'tusd'];
-      const filtered = data.filter(coin => 
-        !stablecoins.includes(coin.symbol.toLowerCase())
-      );
-
-      // إنشاء الأقسام
-      const sections = [
-        {
-          title: 'أعلى 5 عملات من حيث القيمة السوقية',
-          icon: '💰',
-          data: [...filtered].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5)
-        },
-        {
-          title: 'أدنى 5 عملات من حيث القيمة السوقية',
-          icon: '📉',
-          data: [...filtered].sort((a, b) => a.market_cap - b.market_cap).slice(0, 5)
-        }
-      ];
-
-      // عرض البيانات
-      sections.forEach(section => {
-        const sectionHTML = `
-          <div class="section">
-            <div class="section-title">
-              <span>${section.icon}</span>
-              <h2>${section.title}</h2>
-            </div>
-            <div class="grid">
-              ${section.data.map(coin => `
-                <div class="card">
-                  <div class="card-header">
-                    <span class="coin-name">${coin.symbol.toUpperCase()}</span>
-                    <img src="${coin.image}" width="24" height="24" alt="${coin.symbol}">
-                  </div>
-                  <div class="coin-value">القيمة السوقية: $${coin.market_cap.toLocaleString()}</div>
-                  <div class="coin-value">السعر: $${coin.current_price.toLocaleString()}</div>
-                  <div class="coin-value">التداول اليومي: $${coin.total_volume.toLocaleString()}</div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-        content.insertAdjacentHTML('beforeend', sectionHTML);
-      });
-    }
-
-    // بدء جلب البيانات عند تحميل الصفحة
-    document.addEventListener('DOMContentLoaded', fetchData);
+    fetchData();
   </script>
 </body>
 </html>

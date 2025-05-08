@@ -274,6 +274,11 @@
               .then(res => res.json())
           )
         );
+        // مثال لإضافة بيانات من LunarCrush
+async function fetchLunarCrushData(symbol) {
+  const response = await fetch(`https://api.lunarcrush.com/v2?data=assets&key=YOUR_KEY&symbol=${symbol}`);
+  return await response.json();
+}
         
         // دمج البيانات
         const enrichedData = marketData.map(coin => {

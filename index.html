@@ -267,19 +267,21 @@
     const marketResponse = await fetch('https://render-sfo2.onrender.com/api/market');
     const marketData = await marketResponse.json();
         
-        // جلب بيانات المجتمع لكل عملة
-        const coinsDetails = await Promise.all(
+    // جلب بيانات المجتمع لكل عملة
+    const coinsDetails = await Promise.all(
       marketData.slice(0, 30).map(coin => 
         fetch(`https://api.coingecko.com/api/v3/coins/${coin.id}?localization=false&tickers=false&community_data=true&developer_data=true`)
           .then(res => res.json())
       )
     );
-       return { marketData, coinsDetails };
+    
+    return { marketData, coinsDetails };
   } catch (error) {
     console.error('Error fetching data:', error);
     return null;
   }
-}  
+}
+
         // دمج البيانات
         const enrichedData = marketData.map(coin => {
           const detail = coinsDetails.find(d => d.id === coin.id) || {};

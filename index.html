@@ -278,182 +278,122 @@
       }
     };
 
-    async function fetchFullData() {
+  <script>
+  // الدالة الرئيسية لجلب البيانات مع حلول CORS متعددة
+  async function fetchFullData() {
+    const API_URL = 'https://render-sfo2.onrender.com/api/market';
+    
+    try {
+      // المحاولة 1: استخدام CORS Proxy
+      let data = await tryFetchWithProxy(API_URL);
+      
+      // المحاولة 2: إذا فشلت جرب JSONP (إذا كان مدعوماً)
+      if (!data) data = await tryJsonp(API_URL);
+      
+      // المحاولة 3: جلب البيانات عبر خدمة وسيطة
+      if (!data) data = await tryBackendService();
+      
+      // إذا فشلت جميع المحاولات
+      if (!data) throw new Error('فشل جلب البيانات');
+      
+      renderAllSections(data);
+      
+    } catch (error) {
+      console.error('Error:', error);
+      showError(error);
+      showFallbackData(); // عرض بيانات تجريبية
+    }
+  }
+
+  // الطريقة 1: استخدام CORS Proxy
+  async function tryFetchWithProxy(url) {
+    const proxies = [
+      'https://api.allorigins.win/get?url=',
+      'https://cors-anywhere.herokuapp.com/',
+      'https://thingproxy.freeboard.io/fetch/'
+    ];
+    
+    for (const proxy of proxies) {
       try {
-        const response = await fetch('https://render-sfo2.onrender.com/api/market');
-        
-        if (!response.ok) {
-          throw new Error(`خطأ في الخادم: ${response.status}`);
+        const response = await fetch(`${proxy}${encodeURIComponent(url)}`);
+        if (response.ok) {
+          const result = await response.json();
+          return result.contents ? JSON.parse(result.contents) : result;
         }
-        
-        const data = await response.json();
-        
-        if (!data || data.length === 0) {
-          throw new Error('لا توجد بيانات متاحة حاليًا');
-        }
-        
-        renderAllSections(data);
-      } catch (error) {
-        console.error('Error:', error);
-        showError(error);
-      }
+      } catch (e) { continue; }
     }
+    return null;
+  }
 
-    function showError(error) {
-      document.getElementById('content').innerHTML = `
-        <div style="text-align:center; padding:30px;">
-          <i class="fas fa-exclamation-triangle" style="font-size:48px; color:#ff6b6b;"></i>
-          <h3 style="color:#ff6b6b;">حدث خطأ في جلب البيانات</h3>
-          <p style="color:#aaa;">${error.message}</p>
-          <button onclick="fetchFullData()" class="retry-btn">
-            <i class="fas fa-sync-alt"></i> إعادة المحاولة
-          </button>
-        </div>
-      `;
-    }
-
-    function renderAllSections(data) {
-      const content = document.getElementById('content');
-      content.innerHTML = '';
+  // الطريقة 2: استخدام JSONP (إذا كان الخادم يدعمه)
+  function tryJsonp(url) {
+    return new Promise((resolve) => {
+      if (!url.includes('?')) url += '?';
+      const callbackName = `jsonp_${Date.now()}`;
       
-      // إنشاء جميع الأقسام المطلوبة
-      const sections = [
-        {
-          icon: '💰',
-          title: 'أعلى 5 عملات من حيث القيمة السوقية',
-          data: [...data].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5),
-          description: 'العملات ذات أعلى قيمة سوقية إجمالية'
-        },
-        {
-          icon: '📈',
-          title: 'أعلى 5 عملات من حيث الأداء اليومي',
-          data: [...data].sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h).slice(0, 5),
-          description: 'العملات ذات أعلى ارتفاع خلال 24 ساعة'
-        },
-        {
-          icon: '📊',
-          title: 'أعلى 5 عملات من حيث حجم التداول',
-          data: [...data].sort((a, b) => b.total_volume - a.total_volume).slice(0, 5),
-          description: 'العملات الأكثر تداولاً خلال 24 ساعة'
-        },
-        {
-          icon: '🔄',
-          title: 'أعلى 5 عملات من حيث السيولة',
-          data: [...data].sort((a, b) => (b.total_volume/b.market_cap) - (a.total_volume/a.market_cap)).slice(0, 5),
-          description: 'العملات ذات أعلى نسبة تداول بالنسبة للقيمة السوقية'
-        }
-      ];
-      
-      sections.forEach(section => {
-        const sectionHTML = `
-          <div class="section">
-            <h2 class="section-title">
-              <span>${section.icon}</span>
-              <span>${section.title}</span>
-            </h2>
-            <p style="color:#aaa; margin-top:-15px; margin-bottom:15px; padding-right:20px;">
-              ${section.description}
-            </p>
-            <div class="grid">
-              ${section.data.map(coin => createCoinCard(coin)).join('')}
-            </div>
-          </div>
-        `;
-        content.insertAdjacentHTML('beforeend', sectionHTML);
-      });
-      
-      // تحريك أشرطة التقدم بعد تحميل الصفحة
-      setTimeout(() => {
-        document.querySelectorAll('.progress-fill').forEach(bar => {
-          const width = bar.parentElement.getAttribute('data-width');
-          bar.style.width = width + '%';
-        });
-      }, 300);
-    }
-
-    function createCoinCard(coin) {
-      // حساب نسبة التغير اليومي
-      const priceChange = coin.price_change_percentage_24h || 0;
-      const priceChangeClass = priceChange >= 0 ? 'positive' : 'negative';
-      const priceChangeText = priceChange >= 0 ? `+${priceChange.toFixed(2)}%` : `${priceChange.toFixed(2)}%`;
-      
-      // حساب قوة المجتمع (افتراضية بناء على حجم التداول)
-      const communityScore = Math.min(100, Math.floor(Math.log10(coin.total_volume || 1000000) * 15));
-      
-      // روابط الوسائط الاجتماعية
-      const socialLinks = SOCIAL_LINKS[coin.id] || {
-        twitter: `https://twitter.com/search?q=${coin.name}`,
-        reddit: `https://reddit.com/search?q=${coin.name}`,
-        telegram: '#',
-        website: '#'
+      window[callbackName] = (data) => {
+        delete window[callbackName];
+        document.body.removeChild(script);
+        resolve(data);
       };
       
-      return `
-        <div class="card">
-          <div class="card-header">
-            <div class="coin-info">
-              <img src="${coin.image}" class="coin-image" alt="${coin.symbol}" onerror="this.src='https://via.placeholder.com/36'">
-              <div class="coin-name">${coin.symbol.toUpperCase()}</div>
-            </div>
-            <div class="coin-rank">#${coin.market_cap_rank}</div>
-          </div>
-          
-          <div class="coin-price">
-            السعر: $${coin.current_price.toLocaleString()}
-            <span class="price-change ${priceChangeClass}">${priceChangeText}</span>
-          </div>
-          
-          <div class="market-data">
-            <div class="data-item">
-              <div class="data-label">القيمة السوقية</div>
-              <div class="data-value">$${(coin.market_cap / 1000000000).toFixed(2)} مليار</div>
-            </div>
-            <div class="data-item">
-              <div class="data-label">حجم التداول (24h)</div>
-              <div class="data-value">$${(coin.total_volume / 1000000).toFixed(2)} مليون</div>
-            </div>
-            <div class="data-item">
-              <div class="data-label">التغير (24h)</div>
-              <div class="data-value ${priceChangeClass}">${priceChangeText}</div>
-            </div>
-            <div class="data-item">
-              <div class="data-label">السيولة</div>
-              <div class="data-value">${((coin.total_volume / coin.market_cap) * 100).toFixed(2)}%</div>
-            </div>
-          </div>
-          
-          <div class="community-section">
-            <div class="progress-container">
-              <div class="progress-label">
-                <span>قوة المجتمع</span>
-                <span>${communityScore}%</span>
-              </div>
-              <div class="progress-bar" data-width="${communityScore}">
-                <div class="progress-fill"></div>
-              </div>
-            </div>
-            
-            <div class="social-links">
-              <a href="${socialLinks.twitter}" target="_blank" class="social-link" title="تويتر">
-                <i class="fab fa-twitter"></i>
-              </a>
-              <a href="${socialLinks.reddit}" target="_blank" class="social-link" title="ريديت">
-                <i class="fab fa-reddit"></i>
-              </a>
-              <a href="${socialLinks.telegram}" target="_blank" class="social-link" title="تليجرام">
-                <i class="fab fa-telegram"></i>
-              </a>
-              <a href="${socialLinks.website}" target="_blank" class="social-link" title="الموقع الرسمي">
-                <i class="fas fa-globe"></i>
-              </a>
-            </div>
-          </div>
-        </div>
-      `;
-    }
+      const script = document.createElement('script');
+      script.src = `${url}&callback=${callbackName}`;
+      script.onerror = () => resolve(null);
+      document.body.appendChild(script);
+    });
+  }
 
-    // بدء جلب البيانات عند تحميل الصفحة
-    document.addEventListener('DOMContentLoaded', fetchFullData);
+  // الطريقة 3: استخدام خدمة وسيطة (مثل Cloudflare Worker)
+  async function tryBackendService() {
+    try {
+      // يمكنك استبدال هذا برابط خدمتك الخاصة
+      const response = await fetch('https://your-cloudflare-worker.workers.dev/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: 'https://render-sfo2.onrender.com/api/market' })
+      });
+      return response.ok ? await response.json() : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // عرض البيانات التجريبية عند الفشل
+  function showFallbackData() {
+    const fallbackData = [{
+      id: 'bitcoin',
+      symbol: 'btc',
+      name: 'Bitcoin',
+      image: 'https://assets.coingecko.com/coins/images/1/large/bitcoin.png',
+      current_price: 102101,
+      price_change_percentage_24h: 5.73,
+      market_cap: 2030090534141,
+      market_cap_rank: 1,
+      total_volume: 51265623457,
+      circulating_supply: 19862059,
+      max_supply: 21000000
+    }];
+    
+    document.getElementById('content').innerHTML = `
+      <div style="text-align:center; padding:20px;">
+        <div style="color:#ff9800; margin-bottom:15px;">
+          <i class="fas fa-exclamation-triangle" style="font-size:36px;"></i>
+          <h3>يتم عرض بيانات تجريبية</h3>
+          <p>لا يمكن الاتصال بالخادم حالياً</p>
+        </div>
+        <button onclick="fetchFullData()" class="retry-btn">
+          <i class="fas fa-sync-alt"></i> إعادة المحاولة
+        </button>
+      </div>
+    `;
+    
+    renderAllSections(fallbackData);
+  }
+
+  // بدء جلب البيانات عند تحميل الصفحة
+  document.addEventListener('DOMContentLoaded', fetchFullData);
+</script>
   </script>
 </body>
 </html>

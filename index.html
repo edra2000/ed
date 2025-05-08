@@ -5,102 +5,27 @@
   <title>تحليل العملات الرقمية</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      padding: 40px 20px;
-      background-color: #252525;
-      font-family: 'Tajawal', sans-serif;
-      color: #f0f0f0;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: auto;
-    }
-
-    h1 {
-      font-size: 28px;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
-    h2 {
-      font-size: 16px;
-      margin: 40px 0 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #ffffff;
-      justify-content: right; /* تغيير إلى right */
-      padding-right: 20px; /* إضافة padding للمحاذاة */
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-    }
-
-    .card {
-      background-color: #2e2e2e;
-      border-radius: 18px;
-      padding: 18px;
-      width: 220px;
-      height: auto;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease;
-      text-align: right;
-      direction: rtl;
-      margin: 0 auto; /* مركزة البطاقات مع محافظة على محتوى يميني */
-    }
-
-    .card:hover {
-      transform: scale(1.03);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-    }
+    /* ... (الأكواد السابقة نفسها) ... */
 
     .card-header {
       display: flex;
       align-items: center;
+      justify-content: flex-end; /* المحاذاة لليمين */
       gap: 10px;
       margin-bottom: 12px;
-      justify-content: flex-end; /* تأكيد المحاذاة لليمين */
+      flex-direction: row-reverse; /* قلب ترتيب العناصر */
     }
 
     .coin-image {
       width: 28px;
       height: 28px;
-      order: 1; /* الصورة تظهر على اليمين */
+      margin-left: 0; /* إزالة أي هامش غير ضروري */
     }
 
     .card-symbol {
       font-size: 18px;
       font-weight: bold;
       color: #ffffff;
-      order: 2; /* الرمز يظهر على اليسار */
-    }
-
-    .card-value {
-      font-size: 14px;
-      color: #a8e6ff;
-      margin: 4px 0;
-      text-align: right;
-    }
-
-    .source-link {
-      margin-top: 60px;
-      font-size: 14px;
-      color: #999;
-      text-align: center;
-    }
-
-    .source-link a {
-      color: #66ccff;
-      text-decoration: none;
-    }
-
-    .source-link a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>

@@ -1,188 +1,205 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>تحليل العملات الرقمية</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YASER CRYPTO | الأسعار المباشرة</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
-      margin: 0;
-      padding: 40px 20px;
-      background-color: #252525;
       font-family: 'Tajawal', sans-serif;
-      color: #f0f0f0;
-      text-align: right;
+      background: #121212;
+      color: #e0e0e0;
+      margin: 0;
+      padding: 0;
     }
 
-    .container {
-      max-width: 1400px;
-      margin: auto;
+    .header {
+      background: #1a1a1a;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
     }
 
+    /* تعديل العناوين لليمين */
     h1 {
-      font-size: 28px;
-      margin-bottom: 30px;
-      text-align: center;
-    }
-
-    h2 {
-      font-size: 16px;
-      margin: 40px 0 10px;
+      margin: 0;
+      color: #ffd700;
+      font-size: 1.8rem;
+      text-align: right;
       display: flex;
+      justify-content: flex-start;
       align-items: center;
-      justify-content: flex-end;
-      gap: 10px;
-      direction: rtl;
-      color: #ffffff;
     }
 
-    .grid {
+    /* شبكات العملات */
+    .coins-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 24px;
-      justify-items: center;
+      grid-template-columns: repeat(5, 1fr); /* 5 عملات في كل صف */
+      gap: 20px;
+      padding: 20px;
+      justify-content: center; /* محاذاة الشبكة في وسط الصفحة */
     }
 
-    .card {
-      background-color: #2e2e2e;
-      border-radius: 18px;
-      padding: 18px;
-      width: 220px;
-      height: auto;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease;
+    .coin-card {
+      background: #252525;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border: 1px solid #333;
+      display: flex;
+      flex-direction: row-reverse; /* محاذاة المحتوى لليمين */
+      justify-content: space-between;
+      align-items: center;
+      transition: box-shadow 0.3s ease-in-out;
+    }
+
+    .coin-card:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5); /* إضافة تأثير ظل عند التمرير */
+    }
+
+    .coin-info {
+      flex: 1;
       text-align: right;
     }
 
-    .card:hover {
-      transform: scale(1.03);
+    .coin-info img {
+      max-width: 30px;
+      max-height: 30px;
+      margin-left: 10px;
     }
 
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .coin-image {
-      width: 28px;
-      height: 28px;
-    }
-
-    .card-symbol {
-      font-size: 18px;
+    .coin-name {
       font-weight: bold;
-      color: #ffffff;
+      font-size: 18px;
     }
 
-    .card-value {
+    .coin-price {
+      font-size: 16px;
+      margin: 5px 0;
+    }
+
+    .coin-change {
       font-size: 14px;
-      color: #a8e6ff;
-      margin: 4px 0;
     }
 
-    .source-link {
-      margin-top: 60px;
-      font-size: 14px;
-      color: #999;
-      text-align: center;
+    /* الفلاتر */
+    .controls {
+      background: #252525;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 20px;
     }
 
-    .source-link a {
-      color: #66ccff;
-      text-decoration: none;
-    }
-
-    .source-link a:hover {
-      text-decoration: underline;
+    .controls input,
+    .controls select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      background: #333;
+      color: white;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>تحليل العملات الرقمية</h1>
-    <div id="content"></div>
 
-    <div class="source-link">
-      البيانات من: <a href="https://www.coingecko.com/" target="_blank" rel="noopener">CoinGecko</a>
-    </div>
+  <!-- الهيكل الأساسي -->
+  <div class="header">
+    <h1><i class="fas fa-coins"></i> YASER CRYPTO</h1>
+    <p>محلل ومتداول محترف في سوق العملات الرقمية والاسهم</p>
   </div>
 
+  <!-- عناصر التحكم -->
+  <div class="controls">
+    <input type="text" id="searchInput" placeholder="ابحث عن عملة..." />
+    <select id="sortSelect">
+      <option value="changeDesc">الأعلى تغييراً ▲</option>
+      <option value="changeAsc">الأقل تغييراً ▼</option>
+      <option value="volumeDesc">الأعلى سيولة ▲</option>
+      <option value="none">بدون ترتيب</option>
+    </select>
+  </div>
+
+  <!-- شبكة العملات -->
+  <div id="coinsGrid" class="coins-grid"></div>
+
   <script>
-    async function fetchData() {
+    // المتغير العام للبيانات
+    let allCoins = [];
+
+    // جلب البيانات من CoinGecko API
+    async function fetchCoinsData() {
+      const coinsGrid = document.getElementById('coinsGrid');
       try {
-        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false');
+        coinsGrid.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> جاري تحميل البيانات...</div>';
+
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1');
         const data = await response.json();
-        const content = document.getElementById('content');
 
-        // استبعاد العملات المستقرة
-        const stablecoins = ['usdt', 'usdc', 'busd', 'dai', 'tusd', 'usdp', 'gusd'];
-        const filtered = data.filter(coin =>
-          !stablecoins.includes(coin.symbol.toLowerCase()) &&
-          coin.market_cap &&
-          coin.circulating_supply
-        );
+        // تصفية العملات
+        allCoins = data.filter(coin =>
+          !coin.symbol.includes('usdt') &&  // استبعاد العملات المستقرة
+          !coin.symbol.includes('busd') &&
+          !coin.symbol.includes('dai')
+        ).slice(0, 50);  // عرض أول 50 عملة فقط
 
-        const sections = [
-          { icon: '💰', title: 'أعلى 5 عملات من حيث القيمة السوقية', data: [...filtered].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5) },
-          { icon: '📉', title: 'أدنى 5 عملات من حيث القيمة السوقية', data: [...filtered].sort((a, b) => a.market_cap - b.market_cap).slice(0, 5) },
-          { icon: '📦', title: 'أعلى 5 عملات من حيث العدد المعروض', data: [...filtered].sort((a, b) => b.circulating_supply - a.circulating_supply).slice(0, 5) },
-          { icon: '🧮', title: 'أدنى 5 عملات من حيث العدد المعروض', data: [...filtered].sort((a, b) => a.circulating_supply - b.circulating_supply).slice(0, 5) },
-        ];
-
-        for (let section of sections) {
-          const sec = document.createElement('div');
-          const h2 = document.createElement('h2');
-          h2.innerHTML = `${section.icon} ${section.title}`;
-          sec.appendChild(h2);
-
-          const grid = document.createElement('div');
-          grid.className = 'grid';
-
-          section.data.forEach(coin => {
-            const card = document.createElement('div');
-            card.className = 'card';
-
-            const header = document.createElement('div');
-            header.className = 'card-header';
-
-            const img = document.createElement('img');
-            img.src = coin.image;
-            img.className = 'coin-image';
-            img.alt = coin.symbol.toUpperCase();
-
-            const symbol = document.createElement('div');
-            symbol.className = 'card-symbol';
-            symbol.textContent = coin.symbol.toUpperCase();
-
-            header.appendChild(img);
-            header.appendChild(symbol);
-            card.appendChild(header);
-
-            const marketCap = document.createElement('div');
-            marketCap.className = 'card-value';
-            marketCap.textContent = 'القيمة السوقية: $' + coin.market_cap.toLocaleString();
-
-            const supply = document.createElement('div');
-            supply.className = 'card-value';
-            supply.textContent = 'العدد المعروض: ' + coin.circulating_supply.toLocaleString();
-
-            card.appendChild(marketCap);
-            card.appendChild(supply);
-            grid.appendChild(card);
-          });
-
-          sec.appendChild(grid);
-          content.appendChild(sec);
-        }
+        applyFilters();
       } catch (error) {
-        console.error('خطأ في جلب البيانات:', error);
+        console.error('Error:', error);
+        coinsGrid.innerHTML = `<div style="color:red; text-align:center;">حدث خطأ في جلب البيانات</div>`;
       }
     }
 
-    fetchData();
+    // دالة التصفية والترتيب
+    function applyFilters() {
+      const searchInput = document.getElementById('searchInput');
+      const sortSelect = document.getElementById('sortSelect');
+      const container = document.getElementById('coinsGrid');
+
+      if (!container || !allCoins) return;
+
+      // التصفية حسب البحث
+      const searchTerm = searchInput.value.toLowerCase();
+      let filtered = allCoins.filter(coin =>
+        coin.symbol.toLowerCase().includes(searchTerm)
+      );
+
+      // الترتيب
+      switch (sortSelect.value) {
+        case 'changeDesc':
+          filtered.sort((a, b) => b.price_change_percentage_24h - a.price_change_percentage_24h);
+          break;
+        case 'changeAsc':
+          filtered.sort((a, b) => a.price_change_percentage_24h - b.price_change_percentage_24h);
+          break;
+        case 'volumeDesc':
+          filtered.sort((a, b) => b.total_volumes - a.total_volumes);
+          break;
+      }
+
+      container.innerHTML = filtered.map(coin => {
+        return `
+          <div class="coin-card">
+            <div class="coin-info">
+              <div class="coin-name">${coin.symbol.toUpperCase()} <img src="${coin.image}" alt="${coin.name}" /></div>
+              <div class="coin-price">${coin.current_price.toFixed(2)} $</div>
+              <div class="coin-change ${coin.price_change_percentage_24h > 0 ? 'up' : 'down'}">
+                ${coin.price_change_percentage_24h.toFixed(2)}%
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // تفعيل عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchCoinsData(); // جلب البيانات أول مرة
+      setInterval(fetchCoinsData, 90000); // تحديث البيانات كل 90 ثانية
+    });
   </script>
 </body>
 </html>

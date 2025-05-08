@@ -14,27 +14,29 @@
       text-align: center;
     }
 
-    h1 {
-      color: #f0f0f0;
-      font-size: 28px;
-      margin-bottom: 30px;
-    }
-
-    h2 {
-      color: #ffffff;
-      font-size: 20px;
-      margin-top: 40px;
-      margin-bottom: 10px;
-    }
-
     .container {
       max-width: 1200px;
       margin: auto;
     }
 
+    h1 {
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin: 40px 0 10px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      text-align: right;
+      gap: 8px;
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 20px;
       justify-content: center;
       margin-top: 20px;
@@ -46,6 +48,7 @@
       padding: 20px;
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.04);
       transition: transform 0.2s;
+      text-align: center;
     }
 
     .card:hover {
@@ -63,6 +66,12 @@
       font-size: 14px;
       color: #a8e6ff;
       margin: 4px 0;
+    }
+
+    .coin-image {
+      width: 36px;
+      height: 36px;
+      margin-bottom: 10px;
     }
 
     .source-link {
@@ -94,24 +103,24 @@
   <script>
     async function fetchData() {
       try {
-        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false');
+        const response = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=250&page=1&sparkline=false');
         const data = await response.json();
         const content = document.getElementById('content');
 
-        // فلترة البيانات
-        const valid = data.filter(c => c.market_cap && c.circulating_supply);
+        // تصفية العملات مقابل USDT فقط
+        const usdtOnly = data.filter(c => c.symbol.toLowerCase().includes('usdt') && c.market_cap && c.circulating_supply);
 
         const sections = [
-          { title: 'أعلى 5 عملات من حيث القيمة السوقية', data: [...valid].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5) },
-          { title: 'أدنى 5 عملات من حيث القيمة السوقية', data: [...valid].sort((a, b) => a.market_cap - b.market_cap).slice(0, 5) },
-          { title: 'أعلى 5 عملات من حيث العدد المعروض', data: [...valid].sort((a, b) => b.circulating_supply - a.circulating_supply).slice(0, 5) },
-          { title: 'أدنى 5 عملات من حيث العدد المعروض', data: [...valid].sort((a, b) => a.circulating_supply - b.circulating_supply).slice(0, 5) },
+          { icon: '💰', title: 'أعلى 5 عملات من حيث القيمة السوقية', data: [...usdtOnly].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5) },
+          { icon: '📉', title: 'أدنى 5 عملات من حيث القيمة السوقية', data: [...usdtOnly].sort((a, b) => a.market_cap - b.market_cap).slice(0, 5) },
+          { icon: '📦', title: 'أعلى 5 عملات من حيث العدد المعروض', data: [...usdtOnly].sort((a, b) => b.circulating_supply - a.circulating_supply).slice(0, 5) },
+          { icon: '🧮', title: 'أدنى 5 عملات من حيث العدد المعروض', data: [...usdtOnly].sort((a, b) => a.circulating_supply - b.circulating_supply).slice(0, 5) },
         ];
 
         for (let section of sections) {
           const sec = document.createElement('div');
           const h2 = document.createElement('h2');
-          h2.textContent = section.title;
+          h2.innerHTML = `${section.icon} ${section.title}`;
           sec.appendChild(h2);
 
           const grid = document.createElement('div');
@@ -121,9 +130,14 @@
             const card = document.createElement('div');
             card.className = 'card';
 
+            const img = document.createElement('img');
+            img.src = coin.image;
+            img.className = 'coin-image';
+            img.alt = coin.name;
+
             const name = document.createElement('div');
             name.className = 'card-title';
-            name.textContent = coin.name;
+            name.textContent = coin.name + ' (' + coin.symbol.toUpperCase() + ')';
 
             const marketCap = document.createElement('div');
             marketCap.className = 'card-value';
@@ -133,6 +147,7 @@
             supply.className = 'card-value';
             supply.textContent = 'العدد المعروض: ' + coin.circulating_supply.toLocaleString();
 
+            card.appendChild(img);
             card.appendChild(name);
             card.appendChild(marketCap);
             card.appendChild(supply);

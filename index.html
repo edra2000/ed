@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تصنيف العملات</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: #252525;
+      font-family: 'Tajawal', sans-serif;
+      color: #e0e0e0;
+    }
+
+    h2 {
+      margin-top: 40px;
+      color: #FFD700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background-color: #2f2f2f;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: scale(1.05);
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #ffffff;
+    }
+
+    .card-value {
+      font-size: 14px;
+      color: #90ee90;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>1. أكثر العملات من حيث القيمة السوقية</h2>
+  <div class="grid" id="topMarketCap"></div>
+
+  <h2>2. أقل العملات من حيث القيمة السوقية</h2>
+  <div class="grid" id="lowMarketCap"></div>
+
+  <h2>3. أكثر العملات دعمًا مجتمعيًا</h2>
+  <div class="grid" id="topCommunity"></div>
+
+  <h2>4. أقل العملات دعمًا مجتمعيًا</h2>
+  <div class="grid" id="lowCommunity"></div>
+
+  <h2>5. أكثر العملات من حيث العدد المعروض</h2>
+  <div class="grid" id="topSupply"></div>
+
+  <h2>6. أقل العملات من حيث العدد المعروض</h2>
+  <div class="grid" id="lowSupply"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const coins = [
+        { name: 'Bitcoin', marketCap: 900000000000, community: 10000000, supply: 19000000 },
+        { name: 'Ethereum', marketCap: 400000000000, community: 8000000, supply: 120000000 },
+        { name: 'Dogecoin', marketCap: 12000000000, community: 9000000, supply: 132000000000 },
+        { name: 'Shiba Inu', marketCap: 6000000000, community: 9500000, supply: 589000000000000 },
+        { name: 'Litecoin', marketCap: 8000000000, community: 1500000, supply: 84000000 },
+        { name: 'XRP', marketCap: 30000000000, community: 5000000, supply: 100000000000 },
+        { name: 'Cardano', marketCap: 15000000000, community: 3000000, supply: 45000000000 },
+        { name: 'Solana', marketCap: 25000000000, community: 4000000, supply: 500000000 },
+        { name: 'Tron', marketCap: 9000000000, community: 2000000, supply: 92000000000 },
+        { name: 'Monero', marketCap: 3000000000, community: 1000000, supply: 18000000 },
+      ];
+
+      function createCard(coin) {
+        return `
+          <div class="card">
+            <div class="card-title">${coin.name}</div>
+            <div class="card-value">💰 القيمة السوقية: $${(coin.marketCap / 1e9).toFixed(1)}B</div>
+            <div class="card-value">👥 الدعم المجتمعي: ${coin.community.toLocaleString()}</div>
+            <div class="card-value">📦 المعروض: ${coin.supply.toLocaleString()}</div>
+          </div>
+        `;
+      }
+
+      function fillGrid(id, items) {
+        document.getElementById(id).innerHTML = items.map(createCard).join('');
+      }
+
+      fillGrid('topMarketCap', [...coins].sort((a, b) => b.marketCap - a.marketCap).slice(0, 6));
+      fillGrid('lowMarketCap', [...coins].sort((a, b) => a.marketCap - b.marketCap).slice(0, 3));
+      fillGrid('topCommunity', [...coins].sort((a, b) => b.community - a.community).slice(0, 4));
+      fillGrid('lowCommunity', [...coins].sort((a, b) => a.community - b.community).slice(0, 4));
+      fillGrid('topSupply', [...coins].sort((a, b) => b.supply - a.supply).slice(0, 6));
+      fillGrid('lowSupply', [...coins].sort((a, b) => a.supply - b.supply).slice(0, 6));
+    });
+  </script>
+
+</body>
+</html>

@@ -31,7 +31,7 @@
       align-items: center;
       gap: 10px;
       color: #ffffff;
-      justify-content: right; /* التأكيد على المحاذاة لليمين */
+      justify-content: right;
       padding-right: 20px;
     }
 
@@ -49,7 +49,7 @@
       height: auto;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
       transition: transform 0.3s ease;
-      direction: rtl; /* التأكيد على الاتجاه من اليمين لليسار */
+      direction: rtl;
     }
 
     .card:hover {
@@ -62,13 +62,12 @@
       align-items: center;
       gap: 10px;
       margin-bottom: 12px;
-      justify-content: flex-end; /* المحاذاة لليمين */
+      justify-content: flex-end;
     }
 
     .coin-image {
       width: 28px;
       height: 28px;
-      margin-left: 0; /* إزالة أي هامش غير مرغوب فيه */
     }
 
     .card-symbol {
@@ -81,7 +80,7 @@
       font-size: 14px;
       color: #a8e6ff;
       margin: 4px 0;
-      text-align: right; /* المحاذاة لليمين */
+      text-align: right;
     }
 
     .source-link {
@@ -127,10 +126,30 @@
         );
 
         const sections = [
-          { icon: '💰', title: 'أعلى 5 عملات من حيث القيمة السوقية', data: [...filtered].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5) },
-          { icon: '📉', title: 'أدنى 5 عملات من حيث القيمة السوقية', data: [...filtered].sort((a, b) => a.market_cap - b.market_cap).slice(0, 5) },
-          { icon: '📦', title: 'أعلى 5 عملات من حيث العدد المعروض', data: [...filtered].sort((a, b) => b.circulating_supply - a.circulating_supply).slice(0, 5) },
-          { icon: '🧮', title: 'أدنى 5 عملات من حيث العدد المعروض', data: [...filtered].sort((a, b) => a.circulating_supply - b.circulating_supply).slice(0, 5) },
+          { 
+            icon: '💰', 
+            title: 'أعلى 5 عملات من حيث القيمة السوقية', 
+            data: [...filtered].sort((a, b) => b.market_cap - a.market_cap).slice(0, 5),
+            displayValue: coin => `القيمة السوقية: $${coin.market_cap.toLocaleString()}`
+          },
+          { 
+            icon: '📉', 
+            title: 'أدنى 5 عملات من حيث القيمة السوقية', 
+            data: [...filtered].sort((a, b) => a.market_cap - b.market_cap).slice(0, 5),
+            displayValue: coin => `القيمة السوقية: $${coin.market_cap.toLocaleString()}`
+          },
+          { 
+            icon: '📦', 
+            title: 'أعلى 5 عملات من حيث العدد المعروض', 
+            data: [...filtered].sort((a, b) => b.circulating_supply - a.circulating_supply).slice(0, 5),
+            displayValue: coin => `العدد المعروض: ${coin.circulating_supply.toLocaleString()}`
+          },
+          { 
+            icon: '🧮', 
+            title: 'أدنى 5 عملات من حيث العدد المعروض', 
+            data: [...filtered].sort((a, b) => a.circulating_supply - b.circulating_supply).slice(0, 5),
+            displayValue: coin => `العدد المعروض: ${coin.circulating_supply.toLocaleString()}`
+          },
         ];
 
         for (let section of sections) {
@@ -162,16 +181,11 @@
             header.appendChild(img);
             card.appendChild(header);
 
-            const marketCap = document.createElement('div');
-            marketCap.className = 'card-value';
-            marketCap.textContent = 'القيمة السوقية: $' + coin.market_cap.toLocaleString();
+            const value = document.createElement('div');
+            value.className = 'card-value';
+            value.textContent = section.displayValue(coin);
+            card.appendChild(value);
 
-            const supply = document.createElement('div');
-            supply.className = 'card-value';
-            supply.textContent = 'العدد المعروض: ' + coin.circulating_supply.toLocaleString();
-
-            card.appendChild(marketCap);
-            card.appendChild(supply);
             grid.appendChild(card);
           });
 

@@ -15,7 +15,7 @@
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: auto;
     }
 
@@ -26,29 +26,31 @@
     }
 
     h2 {
-      font-size: 18px;
+      font-size: 16px;
       margin: 40px 0 10px;
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 8px;
+      gap: 10px;
       direction: rtl;
+      color: #ffffff;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 20px;
-      justify-content: center;
-      margin-top: 20px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 24px;
+      justify-items: center;
     }
 
     .card {
       background-color: #2e2e2e;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.04);
-      transition: transform 0.2s;
+      border-radius: 18px;
+      padding: 18px;
+      width: 220px;
+      height: auto;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease;
       text-align: right;
     }
 
@@ -59,13 +61,14 @@
     .card-header {
       display: flex;
       align-items: center;
+      justify-content: flex-start;
       gap: 10px;
       margin-bottom: 12px;
     }
 
     .coin-image {
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
     }
 
     .card-symbol {

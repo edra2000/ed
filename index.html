@@ -266,6 +266,11 @@
         // جلب بيانات السوق الأساسية
         const marketResponse = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h');
         const marketData = await marketResponse.json();
+        // مثال لإضافة بيانات من LunarCrush
+async function fetchLunarCrushData(symbol) {
+  const response = await fetch(`https://api.lunarcrush.com/v2?data=assets&key=YOUR_KEY&symbol=${symbol}`);
+  return await response.json();
+}
         
         // جلب بيانات المجتمع لكل عملة
         const coinsDetails = await Promise.all(
@@ -274,11 +279,7 @@
               .then(res => res.json())
           )
         );
-        // مثال لإضافة بيانات من LunarCrush
-async function fetchLunarCrushData(symbol) {
-  const response = await fetch(`https://api.lunarcrush.com/v2?data=assets&key=YOUR_KEY&symbol=${symbol}`);
-  return await response.json();
-}
+        
         
         // دمج البيانات
         const enrichedData = marketData.map(coin => {
